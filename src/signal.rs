@@ -43,7 +43,7 @@ pub struct Signal {
 impl DBCObject for Signal {
     fn dbc_string(&self) -> String {
         let receivers = match self.receivers.len() {
-            0 => "VECTOR_XXX".to_string(),
+            0 => "Vector__XXX".to_string(),
             _ => self.receivers.join(", "),
         };
         // format! macro doesn't support direct field access inline with the string

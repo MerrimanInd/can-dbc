@@ -88,7 +88,7 @@ pub enum AccessNode {
 
 impl AccessNode {
     fn access_node_vector_xxx(s: &str) -> IResult<&str, AccessNode> {
-        value(AccessNode::AccessNodeVectorXXX, tag("VECTOR_XXX"))(s)
+        value(AccessNode::AccessNodeVectorXXX, tag("Vector__XXX"))(s)
     }
 
     fn access_node_name(s: &str) -> IResult<&str, AccessNode> {
@@ -100,7 +100,7 @@ impl DBCObject for AccessNode {
     fn dbc_string(&self) -> String {
         return match self {
             Self::AccessNodeName(s) => s.to_string(),
-            Self::AccessNodeVectorXXX => "VECTOR_XXX".to_string(),
+            Self::AccessNodeVectorXXX => "Vector__XXX".to_string(),
         };
     }
 
