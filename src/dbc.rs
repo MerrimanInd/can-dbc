@@ -61,7 +61,6 @@ pub struct DBC {
     pub(crate) extended_multiplex: Vec<ExtendedMultiplex>,
 }
 
-#[allow(dead_code)]
 fn dbc_vec_to_string<T: DBCObject>(dbc_objects: &Vec<T>, delimiter: &str) -> String {
     if dbc_objects.len() > 0 {
         dbc_objects
@@ -241,25 +240,25 @@ impl DBCObject for DBC {
 impl DBC {
     pub fn new() -> Self {
         DBC {
-            version: todo!(),
-            new_symbols: todo!(),
-            bit_timing: todo!(),
-            nodes: todo!(),
-            value_tables: todo!(),
-            messages: todo!(),
-            message_transmitters: todo!(),
-            environment_variables: todo!(),
-            environment_variable_data: todo!(),
-            signal_types: todo!(),
-            comments: todo!(),
-            attribute_definitions: todo!(),
-            attribute_defaults: todo!(),
-            attribute_values: todo!(),
-            value_descriptions: todo!(),
-            signal_type_refs: todo!(),
-            signal_groups: todo!(),
-            signal_extended_value_type_list: todo!(),
-            extended_multiplex: todo!(),
+            version: Version(String::from("")),
+            new_symbols: Symbols::all(),
+            bit_timing: None,
+            nodes: vec![],
+            value_tables: vec![],
+            messages: vec![],
+            message_transmitters: vec![],
+            environment_variables: vec![],
+            environment_variable_data: vec![],
+            signal_types: vec![],
+            comments: vec![],
+            attribute_definitions: vec![],
+            attribute_defaults: vec![],
+            attribute_values: vec![],
+            value_descriptions: vec![],
+            signal_type_refs: vec![],
+            signal_groups: vec![],
+            signal_extended_value_type_list: vec![],
+            extended_multiplex: vec![],
         }
     }
 
@@ -538,6 +537,8 @@ pub struct Symbols (
 );
 
 impl Symbols {
+    /// All modern DBC editors and generators export every symbol string under the NS heading
+    /// This constructor generates a Symbols object with everything prepopulated for new DBCs.
     fn all() -> Symbols {
         Symbols (
             vec![
