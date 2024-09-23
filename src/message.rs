@@ -10,6 +10,7 @@ use crate::parser;
 use crate::DBCObject;
 use crate::Signal;
 use crate::Transmitter;
+use crate::MergeError;
 
 use nom::{
     bytes::complete::tag,
@@ -191,6 +192,68 @@ impl DBCObject for Message {
             }),
         ))
     }
+}
+
+impl Message {
+
+    /// Checks if the passed in message is a subset of the 
+    /// data contained in the message.
+    fn is_subset(&self, msg: &Message) -> bool {
+        return {
+            (self.message_id == msg.message_id) &
+            (self.message_name == msg.message_name) &
+            (self.transmitter == msg.transmitter) &
+            self.signals.iter().all(|s| msg.signals.contains(s))
+        }
+    }
+}
+
+/// This function merges two message lists. It adds non-duplicate messages. If the same message ID
+/// exists in both vecs but one is a subset of the other then it adds the more complete message.
+/// If there are two duplicate message IDs with conflicts in the content then it throws an error.
+pub(crate) fn merge_message_list<'a>(a: &Vec<Message>, b: &'a Vec<Message>) -> Result<Vec<Message>, MergeError<'a>>
+        {
+            let mut output_msgs = a.clone();
+            for incoming_msg in b {
+                match output_msgs.iter().find(|msg| msg.message_id == incoming_msg.message_id) {
+                    Some(current_msg) => {
+                        if !incoming_msg.is_subset(current_msg) {
+                            return Result::Err(MergeError::MessageConflict(&incoming_msg))
+                        }
+                    },
+                    None => output_msgs.push(incoming_msg.clone()),
+                }
+            }
+            return Ok(output_msgs)
+}
+
+#[test]
+fn message_merge_test() {
+    let base_msg_def = "BO_ 42 base_message_2: 8 Vector__XXX\nSG_ signal_4 : 32|8@1- (1,4) [-124|131] \"\" Vector__XXX\nSG_ signal_3 : 16|16@1- (15,0) [0|0] \"\" Vector__XXX\nSG_ signal_2 : 8|8@1- (0.1,0) [-12.8|12.7] \"\" Vector__XXX\nSG_ signal_1 : 0|8@1- (10,-100) [-1380|1170] \"\" Vector__XXX\n\nBO_ 256 base_message_1: 8 Vector__XXX\n";
+    let (_, base_msgs) = many0(Message::parse)(base_msg_def).unwrap();
+
+    let incoming_msg_def = "\nBO_ 79 incoming_message_3: 8 Vector__XXX\n\nBO_ 42 base_message_2: 8 Vector__XXX\n SG_ signal_3 : 16|16@1- (15,0) [0|0] \"\" Vector__XXX\n SG_ signal_2 : 8|8@1- (0.1,0) [-12.8|12.7] \"\" Vector__XXX\n\nBO_ 256 base_message_1: 8 Vector__XXX\n";
+    let (_, incoming_msgs) = many0(Message::parse)(incoming_msg_def).unwrap();
+
+
+    let (_, sig_4) = Signal::parse("SG_ signal_4 : 32|8@1- (1,4) [-124|131] \"\" Vector__XXX\n").unwrap();
+    let (_, sig_3) = Signal::parse("SG_ signal_3 : 16|16@1- (15,0) [0|0] \"\" Vector__XXX\n").unwrap();
+    let (_, sig_2) = Signal::parse("SG_ signal_2 : 8|8@1- (0.1,0) [-12.8|12.7] \"\" Vector__XXX\n").unwrap();
+    let (_, sig_1) = Signal::parse("SG_ signal_1 : 0|8@1- (10,-100) [-1380|1170] \"\" Vector__XXX\n").unwrap();
+
+    let expected_msgs = vec![
+        Message {
+            message_id: MessageId::Standard(42),
+            message_name: String::from("base_message_2"),
+            message_size: 8,
+            transmitter: Transmitter::VectorXXX,
+            signals: vec![ sig_4, sig_3, sig_2, sig_1 ]},
+        Message { message_id: MessageId::Standard(256), message_name: String::from("base_message_1"), message_size: 8, transmitter: Transmitter::VectorXXX, signals: vec![] },
+        Message { message_id: MessageId::Standard(79), message_name: String::from("incoming_message_3"), message_size: 8, transmitter: Transmitter::VectorXXX, signals: vec![] },
+    ];
+    let merged_msgs = merge_message_list(&base_msgs, &incoming_msgs).unwrap();
+
+    assert_eq!(expected_msgs, merged_msgs);
 }
 
 #[test]

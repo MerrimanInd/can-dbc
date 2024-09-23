@@ -238,6 +238,8 @@ impl DBCObject for DBC {
 }
 
 impl DBC {
+
+    /// Creates a new and empty DBC
     pub fn new() -> Self {
         DBC {
             version: Version(String::from("")),
@@ -260,6 +262,28 @@ impl DBC {
             signal_extended_value_type_list: vec![],
             extended_multiplex: vec![],
         }
+    }
+
+    /// Merges another DBC object in
+    pub fn merge_in<'a>(&'a mut self, dbc: &'a DBC) -> Result<&DBC, MergeError> {
+        self.nodes = merge_dbc_vec(&self.nodes, &dbc.nodes);
+        self.value_tables = merge_dbc_vec(&self.value_tables, &dbc.value_tables);
+        self.messages = merge_message_list(&self.messages, &dbc.messages)?;
+        self.message_transmitters = merge_dbc_vec(&self.message_transmitters, &dbc.message_transmitters);
+        self.environment_variables = merge_dbc_vec(&self.environment_variables, &dbc.environment_variables);
+        self.environment_variable_data = merge_dbc_vec(&self.environment_variable_data, &dbc.environment_variable_data);
+        self.signal_types = merge_dbc_vec(&self.signal_types, &dbc.signal_types);
+        self.comments = merge_dbc_vec(&self.comments, &dbc.comments);
+        self.attribute_definitions = merge_dbc_vec(&self.attribute_definitions, &dbc.attribute_definitions);
+        self.attribute_defaults = merge_dbc_vec(&self.attribute_defaults, &dbc.attribute_defaults);
+        self.attribute_values = merge_dbc_vec(&self.attribute_values, &dbc.attribute_values);
+        self.value_descriptions = merge_dbc_vec(&self.value_descriptions, &dbc.value_descriptions);
+        self.signal_type_refs = merge_dbc_vec(&self.signal_type_refs, &dbc.signal_type_refs);
+        self.signal_groups = merge_dbc_vec(&self.signal_groups, &dbc.signal_groups);
+        self.signal_extended_value_type_list = merge_dbc_vec(&self.signal_extended_value_type_list, &dbc.signal_extended_value_type_list);
+        self.extended_multiplex = merge_dbc_vec(&self.extended_multiplex, &dbc.extended_multiplex);
+
+        Ok(self)
     }
 
     pub fn write_to_file(&self, file: &'static str) -> std::io::Result<()> {
@@ -507,12 +531,6 @@ fn version_test() {
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize))]
 pub struct Symbol(pub String);
-
-impl Symbol {
-    fn new(symbol: &str) -> Self {
-        return Self(symbol.to_string())
-    }
-}
 
 impl DBCObject for Symbol {
     fn dbc_string(&self) -> String {

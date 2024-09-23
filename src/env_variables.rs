@@ -104,7 +104,7 @@ impl DBCObject for EnvironmentVariable {
 
 #[test]
 fn environment_variable_test() {
-    let def1 = "EV_ IUV: 0 [-22|20] \"mm\" 3 7 DUMMY_NODE_VECTOR0 VECTOR_XXX;\n";
+    let def1 = "EV_ IUV: 0 [-22|20] \"mm\" 3 7 DUMMY_NODE_VECTOR0 Vector__XXX;\n";
     let env_var1 = EnvironmentVariable {
         env_var_name: "IUV".to_string(),
         env_var_type: EnvType::EnvTypeFloat,
