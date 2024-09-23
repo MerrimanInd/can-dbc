@@ -596,7 +596,7 @@ impl Symbols {
 impl DBCObject for Symbols {
     fn dbc_string(&self) -> String {
         return format!(
-            "NS_ :\n	{}",
+            "NS_ :\n	{}\n",
             self.0
                 .clone()
                 .into_iter()
