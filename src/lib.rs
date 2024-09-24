@@ -83,9 +83,9 @@ pub enum Error<'a> {
 /// Errors related to merging DBC files
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug)]
-pub enum MergeError<'a> {
+pub enum MergeError {
     /// Conflict between messages with the same IDs
-    MessageConflict(&'a Message)
+    MessageConflict(MessageId)
 }
 
 /// Merge two vectors of structures implementing the DBCObject trait while
