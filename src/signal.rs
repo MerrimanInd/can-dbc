@@ -119,7 +119,6 @@ impl DBCObject for Signal {
 }
 
 impl Signal {
-
     /// Create a new Signal object with common defaults
     pub(crate) fn new() -> Self {
         Signal {
@@ -142,14 +141,16 @@ impl Signal {
     fn set_min_and_max(&mut self) {
         (self.min, self.max) = match self.value_type {
             ValueType::Signed => {
-                let range = self.factor*2f64.powf((self.signal_size-1) as f64);
-                (self.offset+range*-1.0, self.offset+range-self.factor)
-            },
-            ValueType::Unsigned => {
-                let range = self.factor*2f64.powf((self.signal_size) as f64);
-                (self.offset, self.offset+range-self.factor)
+                let range = self.factor * 2f64.powf((self.signal_size - 1) as f64);
+                (
+                    self.offset + range * -1.0,
+                    self.offset + range - self.factor,
+                )
             }
-
+            ValueType::Unsigned => {
+                let range = self.factor * 2f64.powf((self.signal_size) as f64);
+                (self.offset, self.offset + range - self.factor)
+            }
         };
     }
 }
@@ -158,25 +159,31 @@ impl Signal {
 fn test_set_min_and_max() {
     use float_eq::float_eq;
 
-    let (_, mut sig_1) = Signal::parse("SG_ signal_1 : 0|8@1- (10,-100) [0|0] \"\" Vector__XXX\n").unwrap();
+    let (_, mut sig_1) =
+        Signal::parse("SG_ signal_1 : 0|8@1- (10,-100) [0|0] \"\" Vector__XXX\n").unwrap();
     let sig_1_min_exp = -1380f64;
     let sig_1_max_exp = 1170f64;
-    let (_, mut sig_2) = Signal::parse("SG_ signal_2 : 8|8@1- (0.1,0) [0|0] \"\" Vector__XXX\n").unwrap();
+    let (_, mut sig_2) =
+        Signal::parse("SG_ signal_2 : 8|8@1- (0.1,0) [0|0] \"\" Vector__XXX\n").unwrap();
     let sig_2_min_exp = -12.8f64;
     let sig_2_max_exp = 12.7f64;
-    let (_, mut sig_3) = Signal::parse("SG_ signal_3 : 16|16@1- (15,0) [0|0] \"\" Vector__XXX\n").unwrap();
+    let (_, mut sig_3) =
+        Signal::parse("SG_ signal_3 : 16|16@1- (15,0) [0|0] \"\" Vector__XXX\n").unwrap();
     let sig_3_min_exp = -491520f64;
     let sig_3_max_exp = 491505f64;
-    let (_, mut sig_4) = Signal::parse("SG_ signal_4 : 32|8@1- (1,4) [0|0] \"\" Vector__XXX\n").unwrap();
+    let (_, mut sig_4) =
+        Signal::parse("SG_ signal_4 : 32|8@1- (1,4) [0|0] \"\" Vector__XXX\n").unwrap();
     let sig_4_min_exp = -124f64;
     let sig_4_max_exp = 131f64;
-    let (_, mut sig_5) = Signal::parse("SG_ signal_5 : 32|8@1+ (1,0) [0|0] \"\" Vector__XXX\n").unwrap();
+    let (_, mut sig_5) =
+        Signal::parse("SG_ signal_5 : 32|8@1+ (1,0) [0|0] \"\" Vector__XXX\n").unwrap();
     let sig_5_min_exp = 0f64;
     let sig_5_max_exp = 255f64;
-    let (_, mut sig_6) = Signal::parse("SG_ signal_6 : 32|8@1+ (4,0) [0|0] \"\" Vector__XXX\n").unwrap();
+    let (_, mut sig_6) =
+        Signal::parse("SG_ signal_6 : 32|8@1+ (4,0) [0|0] \"\" Vector__XXX\n").unwrap();
     let sig_6_min_exp = 0f64;
     let sig_6_max_exp = 1020f64;
-    
+
     sig_1.set_min_and_max();
     sig_2.set_min_and_max();
     sig_3.set_min_and_max();

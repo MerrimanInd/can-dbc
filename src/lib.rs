@@ -85,22 +85,22 @@ pub enum Error<'a> {
 #[derive(Debug)]
 pub enum MergeError {
     /// Conflict between messages with the same IDs
-    MessageConflict(MessageId)
+    MessageConflict(MessageId),
 }
 
 /// Merge two vectors of structures implementing the DBCObject trait while
 /// skipping duplicates.
 pub(crate) fn merge_dbc_vec<T: DBCObject>(a: &Vec<T>, b: &Vec<T>) -> Vec<T>
-    where
-        T: Sized,
-        T: PartialEq,
-        T: Clone,
-        {
-            let mut output_vec = a.clone();
-            for item in b {
-                if !output_vec.contains(&item) {
-                    output_vec.push(item.clone())
-                }
-            }
-            return output_vec
+where
+    T: Sized,
+    T: PartialEq,
+    T: Clone,
+{
+    let mut output_vec = a.clone();
+    for item in b {
+        if !output_vec.contains(&item) {
+            output_vec.push(item.clone())
+        }
+    }
+    return output_vec;
 }

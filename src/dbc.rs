@@ -238,7 +238,6 @@ impl DBCObject for DBC {
 }
 
 impl DBC {
-
     /// Creates a new and empty DBC
     pub fn new() -> Self {
         DBC {
@@ -269,18 +268,27 @@ impl DBC {
         self.nodes = merge_dbc_vec(&self.nodes, &dbc.nodes);
         self.value_tables = merge_dbc_vec(&self.value_tables, &dbc.value_tables);
         self.messages = merge_message_list(&self.messages, &dbc.messages)?;
-        self.message_transmitters = merge_dbc_vec(&self.message_transmitters, &dbc.message_transmitters);
-        self.environment_variables = merge_dbc_vec(&self.environment_variables, &dbc.environment_variables);
-        self.environment_variable_data = merge_dbc_vec(&self.environment_variable_data, &dbc.environment_variable_data);
+        self.message_transmitters =
+            merge_dbc_vec(&self.message_transmitters, &dbc.message_transmitters);
+        self.environment_variables =
+            merge_dbc_vec(&self.environment_variables, &dbc.environment_variables);
+        self.environment_variable_data = merge_dbc_vec(
+            &self.environment_variable_data,
+            &dbc.environment_variable_data,
+        );
         self.signal_types = merge_dbc_vec(&self.signal_types, &dbc.signal_types);
         self.comments = merge_dbc_vec(&self.comments, &dbc.comments);
-        self.attribute_definitions = merge_dbc_vec(&self.attribute_definitions, &dbc.attribute_definitions);
+        self.attribute_definitions =
+            merge_dbc_vec(&self.attribute_definitions, &dbc.attribute_definitions);
         self.attribute_defaults = merge_dbc_vec(&self.attribute_defaults, &dbc.attribute_defaults);
         self.attribute_values = merge_dbc_vec(&self.attribute_values, &dbc.attribute_values);
         self.value_descriptions = merge_dbc_vec(&self.value_descriptions, &dbc.value_descriptions);
         self.signal_type_refs = merge_dbc_vec(&self.signal_type_refs, &dbc.signal_type_refs);
         self.signal_groups = merge_dbc_vec(&self.signal_groups, &dbc.signal_groups);
-        self.signal_extended_value_type_list = merge_dbc_vec(&self.signal_extended_value_type_list, &dbc.signal_extended_value_type_list);
+        self.signal_extended_value_type_list = merge_dbc_vec(
+            &self.signal_extended_value_type_list,
+            &dbc.signal_extended_value_type_list,
+        );
         self.extended_multiplex = merge_dbc_vec(&self.extended_multiplex, &dbc.extended_multiplex);
 
         Ok(self)
@@ -550,46 +558,42 @@ impl DBCObject for Symbol {
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(Serialize))]
-pub struct Symbols (
-    pub(crate) Vec<Symbol>,
-);
+pub struct Symbols(pub(crate) Vec<Symbol>);
 
 impl Symbols {
     /// All modern DBC editors and generators export every symbol string under the NS heading
     /// This constructor generates a Symbols object with everything prepopulated for new DBCs.
     fn all() -> Symbols {
-        Symbols (
-            vec![
-                Symbol("NS_DESC_".to_string()),
-                Symbol("CM_".to_string()),
-                Symbol("BA_DEF_".to_string()),
-                Symbol("BA_".to_string()),
-                Symbol("VAL_".to_string()),
-                Symbol("CAT_DEF_".to_string()),
-                Symbol("CAT_".to_string()),
-                Symbol("FILTER".to_string()),
-                Symbol("BA_DEF_DEF_".to_string()),
-                Symbol("EV_DATA_".to_string()),
-                Symbol("ENVVAR_DATA_".to_string()),
-                Symbol("SGTYPE_".to_string()),
-                Symbol("SGTYPE_VAL_".to_string()),
-                Symbol("BA_DEF_SGTYPE_".to_string()),
-                Symbol("BA_SGTYPE_".to_string()),
-                Symbol("SIG_TYPE_REF_".to_string()),
-                Symbol("VAL_TABLE_".to_string()),
-                Symbol("SIG_GROUP_".to_string()),
-                Symbol("SIG_VALTYPE_".to_string()),
-                Symbol("SIGTYPE_VALTYPE_".to_string()),
-                Symbol("BO_TX_BU_".to_string()),
-                Symbol("BA_DEF_REL_".to_string()),
-                Symbol("BA_REL_".to_string()),
-                Symbol("BA_DEF_DEF_REL_".to_string()),
-                Symbol("BU_SG_REL_".to_string()),
-                Symbol("BU_EV_REL_".to_string()),
-                Symbol("BU_BO_REL_".to_string()),
-                Symbol("SG_MUL_VAL_".to_string()),
-            ]
-        )
+        Symbols(vec![
+            Symbol("NS_DESC_".to_string()),
+            Symbol("CM_".to_string()),
+            Symbol("BA_DEF_".to_string()),
+            Symbol("BA_".to_string()),
+            Symbol("VAL_".to_string()),
+            Symbol("CAT_DEF_".to_string()),
+            Symbol("CAT_".to_string()),
+            Symbol("FILTER".to_string()),
+            Symbol("BA_DEF_DEF_".to_string()),
+            Symbol("EV_DATA_".to_string()),
+            Symbol("ENVVAR_DATA_".to_string()),
+            Symbol("SGTYPE_".to_string()),
+            Symbol("SGTYPE_VAL_".to_string()),
+            Symbol("BA_DEF_SGTYPE_".to_string()),
+            Symbol("BA_SGTYPE_".to_string()),
+            Symbol("SIG_TYPE_REF_".to_string()),
+            Symbol("VAL_TABLE_".to_string()),
+            Symbol("SIG_GROUP_".to_string()),
+            Symbol("SIG_VALTYPE_".to_string()),
+            Symbol("SIGTYPE_VALTYPE_".to_string()),
+            Symbol("BO_TX_BU_".to_string()),
+            Symbol("BA_DEF_REL_".to_string()),
+            Symbol("BA_REL_".to_string()),
+            Symbol("BA_DEF_DEF_REL_".to_string()),
+            Symbol("BU_SG_REL_".to_string()),
+            Symbol("BU_EV_REL_".to_string()),
+            Symbol("BU_BO_REL_".to_string()),
+            Symbol("SG_MUL_VAL_".to_string()),
+        ])
     }
 }
 
@@ -615,7 +619,7 @@ impl DBCObject for Symbols {
         let (s, _) = space0(s)?;
         let (s, _) = line_ending(s)?;
         let (s, symbols) = many0(Symbol::parse)(s)?;
-        Ok((s, Self ( symbols )))
+        Ok((s, Self(symbols)))
     }
 }
 
