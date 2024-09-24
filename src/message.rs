@@ -20,7 +20,7 @@ use nom::{
 
 /// CAN id in header of CAN frame.
 /// Must be unique in DBC file.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize))]
 pub enum MessageId {
     Standard(u16),
@@ -36,6 +36,18 @@ impl MessageId {
             MessageId::Standard(id) => *id as u32,
             MessageId::Extended(id) => *id | 1 << 31,
         }
+    }
+}
+
+impl PartialOrd for MessageId {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        return self.raw().partial_cmp(&other.raw())
+    }
+}
+
+impl Ord for MessageId {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        return self.raw().cmp(&other.raw())
     }
 }
 
@@ -194,6 +206,21 @@ impl DBCObject for Message {
     }
 }
 
+impl PartialOrd for Message {
+    /// Messages should only be ordered on their MessageIds
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        return self.message_id.partial_cmp(other.message_id())
+    }
+}
+
+impl Ord for Message {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        return self.message_id.partial_cmp(&other.message_id).unwrap();
+    }
+}
+
+impl Eq for Message {}
+
 impl Message {
     /// Checks if the message is a subset of the
     /// data contained in the passed in message.
@@ -275,7 +302,7 @@ fn message_merge_test() {
     let (_, sig_1) =
         Signal::parse("SG_ signal_1 : 0|8@1- (10,-100) [-1380|1170] \"\" Vector__XXX\n").unwrap();
 
-    let expected_msgs = vec![
+    let mut expected_msgs = vec![
         Message {
             message_id: MessageId::Standard(256),
             message_name: String::from("base_message_1"),
@@ -298,7 +325,10 @@ fn message_merge_test() {
             signals: vec![sig_4, sig_3, sig_2, sig_1],
         },
     ];
-    let merged_msgs = merge_message_list(&base_msgs, &incoming_msgs).unwrap();
+    expected_msgs.sort();
+    
+    let mut merged_msgs = merge_message_list(&base_msgs, &incoming_msgs).unwrap();
+    merged_msgs.sort();
 
     assert_eq!(expected_msgs, merged_msgs);
 }
